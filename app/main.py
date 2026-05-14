@@ -1,16 +1,5 @@
-import os
 from fastapi import FastAPI
-from pydantic import BaseModel
-from dotenv import load_dotenv
-import google.generativeai as genai
-
-load_dotenv()
-
-api_key = os.getenv("GEMINI_API_KEY")
-
-genai.configure(api_key=api_key)
-
-model = genai.GenerativeModel("gemini-2.5-flash")
+from app.routes.chat import router as chat_router
 
 app = FastAPI(
     title="RINS AI Backend",
@@ -18,18 +7,9 @@ app = FastAPI(
     version="1.0.0"
 )
 
-class ChatRequest(BaseModel):
-    message: str
+app.include_router(chat_router)
+
 
 @app.get("/")
 def root():
     return {"message": "RINS AI Backend Running"}
-
-@app.post("/chat")
-def chat(request: ChatRequest):
-    response = model.generate_content(request.message)
-
-    return {
-        "user_message": request.message,
-        "ai_response": response.text
-    }
